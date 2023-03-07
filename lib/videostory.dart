@@ -16,6 +16,10 @@ class VideoStory extends StoryContent{
 
   @override
   Widget build(BuildContext context) {
+    //After the widget is inserted call play video
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      videoStoryController.start();
+    });
     return
       Obx( () {
         return videoStoryController.isInitialized.value ?
@@ -120,10 +124,4 @@ class VideoStoryController extends GetxController implements StoryController {
     super.dispose();
   }
 
-  @override
-  void onReady() {
-    //Video needs to be displayed so we start the video
-    start();
-    super.onReady();
-  }
 }
