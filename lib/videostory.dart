@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:instagramstory2/story.dart';
 import 'package:video_player/video_player.dart';
 
-class VideoStory extends StatelessWidget implements StoryContent{
+class VideoStory extends StoryContent{
 
   late final VideoStoryController videoStoryController;
 
@@ -55,6 +55,8 @@ class VideoStoryController extends GetxController implements StoryController {
   Rx<Duration> elapsedTime = Rx<Duration>(Duration.zero);
   @override
   Rx<Duration> contentLength = Rx<Duration>(Duration.zero);
+  @override
+  RxBool isStopped = false.obs;
 
   RxBool isInitialized = false.obs;
   RxBool isCallbackSent = false.obs;
@@ -71,6 +73,7 @@ class VideoStoryController extends GetxController implements StoryController {
 
   @override
   void start() {
+    isCallbackSent.value = false;
     videoPlayerController.value.addListener(videoListener);
     videoPlayerController.value.initialize().then((_) {
       contentLength.value = videoPlayerController.value.value.duration;
@@ -82,6 +85,7 @@ class VideoStoryController extends GetxController implements StoryController {
 
   @override
   void stop() {
+    isStopped.value = true;
     videoPlayerController.value.pause();
     videoPlayerController.value.removeListener(videoListener);
     onContentFinished();

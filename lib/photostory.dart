@@ -6,7 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:instagramstory2/story.dart';
 
-class PhotoStory extends StatelessWidget implements StoryContent {
+class PhotoStory extends StoryContent {
 
   @override
   late final PhotoStoryController photoStoryController;
@@ -35,7 +35,8 @@ class PhotoStoryController extends GetxController implements StoryController {
   Rx<Duration> elapsedTime = Rx<Duration>(Duration.zero);
   @override
   Rx<Duration> contentLength = Rx<Duration>(const Duration(milliseconds: PHOTO_DURATION_MS)); //Initialize this to 5seconds
-
+  @override
+  RxBool isStopped = false.obs;
 
   PhotoStoryController({required this.contentUrl, required this.onContentFinished});
 
@@ -58,6 +59,7 @@ class PhotoStoryController extends GetxController implements StoryController {
 
   @override
   void stop() {
+    isStopped.value = true;
     elapsedTime.value = const Duration(milliseconds: PHOTO_DURATION_MS);
     // Callback function to change this story to the next one
     onContentFinished();
