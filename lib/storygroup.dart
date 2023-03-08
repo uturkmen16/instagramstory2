@@ -12,12 +12,13 @@ import 'package:instagramstory2/videostory.dart';
 class StoryGroup extends StatelessWidget{
 
   late StoryGroupController storyGroupController;
-  String userName;
+  int screenPosition;
 
-  StoryGroup({required List<String> stories, required this.userName}) : storyGroupController = Get.put(StoryGroupController(stories: stories));
+  StoryGroup({required List<String> stories, userName, required this.screenPosition}) : storyGroupController = Get.put(StoryGroupController(stories: stories, userName: userName));
 
   @override
   Widget build(BuildContext context) {
+
     return Obx(() {
       return GestureDetector(
         child: Scaffold(
@@ -25,10 +26,10 @@ class StoryGroup extends StatelessWidget{
               alignment: Alignment.center,
               transform:
               Matrix4.identity()
-                ..scale((1.2 - ((storyGroupController.horizontalDragStart.value.dx - storyGroupController.horizontalDrag.value.dx) / (MediaQuery.of(context).size.width * 2)).abs()) / 1.2)
-                ..translate(-(storyGroupController.horizontalDragStart.value.dx - storyGroupController.horizontalDrag.value.dx))
+                ..scale((1.2 - ((storyGroupController.horizontalDragStart.value.dx - storyGroupController.horizontalDrag.value.dx + (3 * screenPosition * MediaQuery.of(context).size.width) / 4 ) / (MediaQuery.of(context).size.width * 2)).abs()) / 1.2)
+                ..translate(-(storyGroupController.horizontalDragStart.value.dx - storyGroupController.horizontalDrag.value.dx + (3 * screenPosition * MediaQuery.of(context).size.width) / 4))
                 ..setEntry(3, 2, 0.001)
-                ..rotateY(pi * ((storyGroupController.horizontalDragStart.value.dx - storyGroupController.horizontalDrag.value.dx) / (MediaQuery.of(context).size.width * 1.8))),
+                ..rotateY(pi * ((storyGroupController.horizontalDragStart.value.dx - storyGroupController.horizontalDrag.value.dx + (3 * screenPosition * MediaQuery.of(context).size.width) / 4) / (MediaQuery.of(context).size.width * 1.8))),
               child: Stack(children: [
                 storyGroupController.storyContents[storyGroupController.currentStoryIndex.value],
                 Column(
@@ -75,6 +76,10 @@ class StoryGroup extends StatelessWidget{
     });
   }
 
+  static const int LEFT = 1;
+  static const int CENTER = 0;
+  static const int RIGHT = -1;
+
 }
 
 class StoryGroupController extends GetxController {
@@ -82,21 +87,22 @@ class StoryGroupController extends GetxController {
   List<String> stories;
   List<StoryContent> storyContents = [];
   RxInt currentStoryIndex = 0.obs;
+  String userName;
   Rx<Offset> horizontalDragStart = Offset.zero.obs;
   Rx<Offset> horizontalDrag = Offset.zero.obs;
 
-  StoryGroupController({required this.stories});
+  StoryGroupController({required this.stories, required this.userName});
 
   @override
   void onInit() {
     for (int i = 0; i < stories.length; i++) {
       String url = stories.elementAt(i);
       if(url.contains('.mp4') || url.contains('.mov') || url.contains('.mov') || url.contains('.wmv') || url.contains('.flv') || url.contains('.avi')) {
-        storyContents.add(VideoStory(url, nextStory, i.toString()));
+        storyContents.add(VideoStory(url, nextStory, userName + i.toString()));
         print("videostory");
       }
       else if(url.contains('.jpeg') || url.contains('.jpg') || url.contains('.png') || url.contains('.svg') || url.contains('.gif') || url.contains('.webp')) {
-        storyContents.add(PhotoStory(url, nextStory, i.toString()));
+        storyContents.add(PhotoStory(url, nextStory, userName + i.toString()));
         print("photostory");
       }
       else {

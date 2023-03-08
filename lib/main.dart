@@ -21,6 +21,10 @@ class Home extends StatelessWidget {
     "https://images.all-free-download.com/footage_preview/mp4/tiny_wild_bird_searching_for_food_in_nature_6892037.mp4",
     "https://img.freepik.com/free-photo/wide-angle-shot-single-tree-growing-clouded-sky-during-sunset-surrounded-by-grass_181624-22807.jpg",
     "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"];
-    return StoryGroup(stories: stories, userName: 'UmutJohn');
+    return Stack(children: [
+      StoryGroup(stories: stories, userName: 'UmutJohn', screenPosition: StoryGroup.CENTER),
+      StoryGroup(stories: stories, userName: 'Ayse', screenPosition: StoryGroup.CENTER),
+      StoryGroup(stories: stories, userName: 'Ali', screenPosition: StoryGroup.CENTER)
+    ],);
   }
 }
