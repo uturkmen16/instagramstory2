@@ -6,17 +6,26 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:instagramstory2/story.dart';
 
-class PhotoStory extends StoryContent {
+class PhotoStory extends StatelessWidget implements StoryContent{
 
-  @override
   late final PhotoStoryController photoStoryController;
 
-  PhotoStory(String contentUrl, Function onContentFinished) {
-    photoStoryController = Get.put(PhotoStoryController(contentUrl: contentUrl, onContentFinished: onContentFinished));
-  }
+  PhotoStory(String contentUrl, Function onContentFinished, String tag) : photoStoryController = Get.put(PhotoStoryController(contentUrl: contentUrl, onContentFinished: onContentFinished),tag: tag);
 
   @override
   Widget build(BuildContext context) {
+
+    //After the widget is inserted call play video
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if(!photoStoryController.isInsertedToTree) {
+        //First time
+        photoStoryController.isInsertedToTree = true;
+        photoStoryController.start();
+        photoStoryController.update();
+        print("-----------------");
+      }
+    });
+
     return Image.network(photoStoryController.contentUrl);
   }
 
@@ -25,71 +34,87 @@ class PhotoStory extends StoryContent {
 
 }
 
-class PhotoStoryController extends GetxController implements StoryController {
+class PhotoStoryController extends StoryController {
 
   @override
   String contentUrl;
   @override
   Function onContentFinished;
   @override
+  bool isStopped = false;
+  RxBool isCallbackSent = false.obs;
+  bool isInsertedToTree = false;
+
   Rx<Duration> elapsedTime = Rx<Duration>(Duration.zero);
-  @override
   Rx<Duration> contentLength = Rx<Duration>(const Duration(milliseconds: PHOTO_DURATION_MS)); //Initialize this to 5seconds
-  @override
-  RxBool isStopped = false.obs;
-
-  PhotoStoryController({required this.contentUrl, required this.onContentFinished});
-
 
   late Timer _timer;
 
+  PhotoStoryController({required this.contentUrl, required this.onContentFinished});
   @override
-  void start() {
-    _timer = Timer.periodic(const Duration(milliseconds: 10), _updateTimer);
+  void onInit() {
+    super.onInit();
+    elapsedTime.value = Duration.zero;
+    contentLength.value = const Duration(milliseconds: PHOTO_DURATION_MS); //Initialize this to 5seconds
   }
+
+  @override
+  Rx<Duration> getElapsedTime() => elapsedTime;
+
+  @override
+  Rx<Duration> getContentLength() => contentLength;
+
 
   void _updateTimer(Timer timer) {
     elapsedTime.value += const Duration(milliseconds: 10);
-    if (elapsedTime.value >= const Duration(milliseconds: PHOTO_DURATION_MS)) {
-      _timer.cancel(); //Timer is over
+    if (elapsedTime.value >= const Duration(milliseconds: PHOTO_DURATION_MS) && elapsedTime.value.inMilliseconds != 0 && !isCallbackSent.value) {
+      isCallbackSent.value = true;
+      timer.cancel(); //Timer is over
       stop();
     }
     update();
   }
 
   @override
+  void start() {
+    elapsedTime.value = Duration.zero;
+    contentLength.value = Duration(milliseconds: PHOTO_DURATION_MS);
+    isCallbackSent.value = false;
+    _timer = Timer.periodic(const Duration(milliseconds: 10), _updateTimer);
+  }
+
+  @override
   void stop() {
-    isStopped.value = true;
-    elapsedTime.value = const Duration(milliseconds: PHOTO_DURATION_MS);
+    isStopped = true;
     // Callback function to change this story to the next one
     onContentFinished();
-    //update();
+    update();
   }
 
   @override
   void pause() {
+    print('paused');
+    print(elapsedTime.value.inMilliseconds);
+    print(contentUrl);
     _timer.cancel();
+    update();
   }
 
   @override
   void play() {
+    print('played');
     _timer = Timer.periodic(const Duration(milliseconds: 10), _updateTimer);
   }
 
   @override
   void dispose(){
-    elapsedTime.close();
-    contentLength.close();
+    isInsertedToTree = false;
+    //elapsedTime.close();
+    //contentLength.close();
     _timer.cancel();
     super.dispose();
   }
 
-  @override
-  void onReady() {
-    //Image needs to be displayed so we start the timer
-    start();
-    super.onReady();
-  }
   static const int PHOTO_DURATION_MS = 5000;
 
 }

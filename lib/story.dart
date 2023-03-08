@@ -7,14 +7,13 @@ abstract class StoryContent extends StatelessWidget{
   StoryController getStoryController();
 }
 
-abstract class StoryController {
-  Function onContentFinished;
-  String contentUrl;
-  Rx<Duration> elapsedTime = Rx<Duration>(Duration.zero);
-  Rx<Duration> contentLength = Rx<Duration>(Duration.zero);
-  RxBool isStopped = false.obs;
+abstract class StoryController extends GetxController{
+  abstract Function onContentFinished;
+  abstract String contentUrl;
+  abstract bool isStopped;
 
-  StoryController({required this.contentUrl, required this.onContentFinished});
+  Rx<Duration> getElapsedTime();
+  Rx<Duration> getContentLength();
 
   void start();
 

@@ -6,13 +6,11 @@ import 'package:get/get.dart';
 import 'package:instagramstory2/story.dart';
 import 'package:video_player/video_player.dart';
 
-class VideoStory extends StoryContent{
+class VideoStory extends StatelessWidget implements StoryContent{
 
   late final VideoStoryController videoStoryController;
 
-  VideoStory(String contentUrl, Function onContentFinished) {
-    videoStoryController = Get.put(VideoStoryController(contentUrl: contentUrl, onContentFinished: onContentFinished));
-  }
+  VideoStory(String contentUrl, Function onContentFinished, String tag) : videoStoryController = Get.put(VideoStoryController(contentUrl: contentUrl, onContentFinished: onContentFinished), tag: tag);
 
   @override
   Widget build(BuildContext context) {
@@ -49,18 +47,17 @@ class VideoStory extends StoryContent{
 
 }
 
-class VideoStoryController extends GetxController implements StoryController {
+class VideoStoryController extends StoryController {
 
   @override
   String contentUrl;
   @override
   Function onContentFinished;
   @override
+  bool isStopped = false;
+
   Rx<Duration> elapsedTime = Rx<Duration>(Duration.zero);
-  @override
   Rx<Duration> contentLength = Rx<Duration>(Duration.zero);
-  @override
-  RxBool isStopped = false.obs;
 
   RxBool isInitialized = false.obs;
   RxBool isCallbackSent = false.obs;
@@ -71,7 +68,9 @@ class VideoStoryController extends GetxController implements StoryController {
 
   @override
   void onInit() {
-    videoPlayerController = Rx<VideoPlayerController>(VideoPlayerController.network(contentUrl, videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true)));
+    print("ONINIT");
+    print(contentUrl);
+    videoPlayerController = Rx<VideoPlayerController>(VideoPlayerController.network(contentUrl));
     super.onInit();
   }
 
@@ -80,19 +79,25 @@ class VideoStoryController extends GetxController implements StoryController {
     isCallbackSent.value = false;
     videoPlayerController.value.addListener(videoListener);
     videoPlayerController.value.initialize().then((_) {
+      print(contentUrl);
+      print("video init");
       contentLength.value = videoPlayerController.value.value.duration;
       isInitialized.value = true;
       update();
+      if(contentLength.value.inMilliseconds <= 0) {
+        stop();
+      }
     });
     videoPlayerController.value.play();
   }
 
   @override
   void stop() {
-    isStopped.value = true;
+    isStopped = true;
     videoPlayerController.value.pause();
     videoPlayerController.value.removeListener(videoListener);
     onContentFinished();
+    update();
   }
 
   @override
@@ -123,5 +128,12 @@ class VideoStoryController extends GetxController implements StoryController {
     videoPlayerController.value.dispose();
     super.dispose();
   }
+
+  @override
+  Rx<Duration> getElapsedTime() => elapsedTime;
+
+  @override
+  Rx<Duration> getContentLength() => contentLength;
+
 
 }
