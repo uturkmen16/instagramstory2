@@ -12,25 +12,15 @@ import 'package:instagramstory2/videostory.dart';
 class StoryGroup extends StatelessWidget{
 
   late StoryGroupController storyGroupController;
-  int screenPosition;
 
-  StoryGroup({required List<String> stories, userName, required this.screenPosition}) : storyGroupController = Get.put(StoryGroupController(stories: stories, userName: userName));
+  StoryGroup({required List<String> stories, required String userName}) : storyGroupController = Get.put(StoryGroupController(stories: stories, userName: userName), tag: userName);
 
   @override
   Widget build(BuildContext context) {
 
     return Obx(() {
-      return GestureDetector(
-        child: Scaffold(
-            body:Transform(
-              alignment: Alignment.center,
-              transform:
-              Matrix4.identity()
-                ..scale((1.2 - ((storyGroupController.horizontalDragStart.value.dx - storyGroupController.horizontalDrag.value.dx + (3 * screenPosition * MediaQuery.of(context).size.width) / 4 ) / (MediaQuery.of(context).size.width * 2)).abs()) / 1.2)
-                ..translate(-(storyGroupController.horizontalDragStart.value.dx - storyGroupController.horizontalDrag.value.dx + (3 * screenPosition * MediaQuery.of(context).size.width) / 4))
-                ..setEntry(3, 2, 0.001)
-                ..rotateY(pi * ((storyGroupController.horizontalDragStart.value.dx - storyGroupController.horizontalDrag.value.dx + (3 * screenPosition * MediaQuery.of(context).size.width) / 4) / (MediaQuery.of(context).size.width * 1.8))),
-              child: Stack(children: [
+        return Scaffold(
+            body: Stack(children: [
                 storyGroupController.storyContents[storyGroupController.currentStoryIndex.value],
                 Column(
                   children: [
@@ -55,30 +45,9 @@ class StoryGroup extends StatelessWidget{
                   ],
                 )
               ],),
-            )
-        ),
-        onTapDown: (TapDownDetails details) {
-          print("tapped");
-        },
-        onHorizontalDragStart: (DragStartDetails details) {
-          storyGroupController.storyContents[storyGroupController.currentStoryIndex.value].getStoryController().pause();
-          storyGroupController.horizontalDragStart.value = details.globalPosition;
-        },
-        onHorizontalDragUpdate: (DragUpdateDetails details) {
-          storyGroupController.horizontalDrag.value = details.globalPosition;
-        },
-        onHorizontalDragEnd: (DragEndDetails details) {
-          if(!storyGroupController.storyContents[storyGroupController.currentStoryIndex.value].getStoryController().isStopped) storyGroupController.storyContents[storyGroupController.currentStoryIndex.value].getStoryController().play();
-          storyGroupController.horizontalDrag.value = Offset.zero;
-          storyGroupController.horizontalDragStart.value = Offset.zero;
-        },
-      );
+        );
     });
   }
-
-  static const int LEFT = 1;
-  static const int CENTER = 0;
-  static const int RIGHT = -1;
 
 }
 
