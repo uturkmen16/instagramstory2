@@ -90,10 +90,6 @@ class AppScreenController extends GetxController {
 
   AppScreenController({required this.storyGroups});
 
-  addStoryGroup(List<String> stories, String userName) {
-    storyGroups.add(StoryGroup(stories: stories, userName: userName, storyGroupFinished: storyGroupFinished));
-  }
-
   storyGroupFinished() {
     if(currentStoryGroupIndex.value < storyGroups.length - 1){
       //Go to next story group

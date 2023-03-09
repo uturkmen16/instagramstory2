@@ -26,16 +26,14 @@ class VideoStory extends StatelessWidget implements StoryContent{
       Obx( () {
         return videoStoryController.isInitialized.value ?
           //If video is initialized show video
-          Column(
-            children: [
+          Center(
+            child:
               AspectRatio(
                 aspectRatio: videoStoryController.videoPlayerController.value
                     .value.aspectRatio,
                 child: VideoPlayer(
                     videoStoryController.videoPlayerController.value),
               ),
-              //Text(videoStoryController.elapsedTime.value.toString()),
-            ]
           )
         :
         //If video is not initialized show buffering
