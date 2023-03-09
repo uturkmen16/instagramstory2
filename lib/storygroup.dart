@@ -6,14 +6,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:instagramstory2/photostory.dart';
-import 'package:instagramstory2/story.dart';
+import 'package:instagramstory2/storycontent.dart';
 import 'package:instagramstory2/videostory.dart';
 
 class StoryGroup extends StatelessWidget{
 
   late StoryGroupController storyGroupController;
 
-  StoryGroup({required List<String> stories, required String userName}) : storyGroupController = Get.put(StoryGroupController(stories: stories, userName: userName), tag: userName);
+
+  StoryGroup({required List<String> stories, required String userName, required Function storyGroupFinished}) : storyGroupController = Get.put(StoryGroupController(stories: stories, userName: userName, storyGroupFinished: storyGroupFinished), tag: userName);
 
   @override
   Widget build(BuildContext context) {
@@ -59,8 +60,9 @@ class StoryGroupController extends GetxController {
   String userName;
   Rx<Offset> horizontalDragStart = Offset.zero.obs;
   Rx<Offset> horizontalDrag = Offset.zero.obs;
+  Function storyGroupFinished;
 
-  StoryGroupController({required this.stories, required this.userName});
+  StoryGroupController({required this.stories, required this.userName, required this.storyGroupFinished});
 
   @override
   void onInit() {
@@ -83,15 +85,38 @@ class StoryGroupController extends GetxController {
 
   nextStory() {
     if(currentStoryIndex.value < storyContents.length - 1) {
+      //There are more stories to show
+      storyContents[currentStoryIndex.value].getStoryController().reset();
       currentStoryIndex.value++;
-      print("hehehe");
+      storyContents[currentStoryIndex.value].getStoryController().play();
+      //print("hehehe");
       print(currentStoryIndex.value);
-      print(storyContents.elementAt(currentStoryIndex.value).getStoryController().getElapsedTime().value);
-      print(storyContents.elementAt(currentStoryIndex.value).getStoryController().getContentLength().value);
-      print('callback');
     }
     else {
-      //GO TO NEXT STORY GROUP
+      //No more stories here make callback
+      storyContents[currentStoryIndex.value].getStoryController().reset();
+      print('makin callback');
+      storyGroupFinished();
     }
+  }
+
+  previousStory() {
+    if(currentStoryIndex.value > 0) {
+      storyContents[currentStoryIndex.value].getStoryController().reset();
+      currentStoryIndex--;
+    }
+    storyContents[currentStoryIndex.value].getStoryController().reset();
+    storyContents[currentStoryIndex.value].getStoryController().play();
+    update();
+  }
+
+  resetCurrentStory() {
+    storyContents[currentStoryIndex.value].getStoryController().reset();
+  }
+  pauseCurrentStory() {
+    storyContents[currentStoryIndex.value].getStoryController().pause();
+  }
+  playCurrentStory() {
+    storyContents[currentStoryIndex.value].getStoryController().play();
   }
 }

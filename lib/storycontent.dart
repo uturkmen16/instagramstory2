@@ -22,4 +22,7 @@ abstract class StoryController extends GetxController{
   void play();
 
   void stop();
+
+  void reset();
+
 }

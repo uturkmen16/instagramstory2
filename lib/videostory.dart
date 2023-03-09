@@ -3,8 +3,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:instagramstory2/story.dart';
+import 'package:instagramstory2/storycontent.dart';
 import 'package:video_player/video_player.dart';
+
+import 'appscreen.dart';
 
 class VideoStory extends StatelessWidget implements StoryContent{
 
@@ -17,6 +19,8 @@ class VideoStory extends StatelessWidget implements StoryContent{
     //After the widget is inserted call play video
     WidgetsBinding.instance.addPostFrameCallback((_) {
       videoStoryController.start();
+      if(Get.find<AppScreenController>().isPressedDown.value) videoStoryController.pause();
+
     });
     return
       Obx( () {
@@ -134,6 +138,11 @@ class VideoStoryController extends StoryController {
 
   @override
   Rx<Duration> getContentLength() => contentLength;
+
+  @override
+  void reset() {
+    // TODO: implement reset
+  }
 
 
 }

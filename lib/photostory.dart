@@ -4,7 +4,8 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:instagramstory2/story.dart';
+import 'package:instagramstory2/appscreen.dart';
+import 'package:instagramstory2/storycontent.dart';
 
 class PhotoStory extends StatelessWidget implements StoryContent{
 
@@ -21,6 +22,7 @@ class PhotoStory extends StatelessWidget implements StoryContent{
         //First time
         photoStoryController.isInsertedToTree = true;
         photoStoryController.start();
+        if(Get.find<AppScreenController>().isPressedDown.value) photoStoryController.pause();
         photoStoryController.update();
         print("-----------------");
       }
@@ -44,6 +46,7 @@ class PhotoStoryController extends StoryController {
   bool isStopped = false;
   RxBool isCallbackSent = false.obs;
   bool isInsertedToTree = false;
+  bool isTimerActive = false;
 
   Rx<Duration> elapsedTime = Rx<Duration>(Duration.zero);
   Rx<Duration> contentLength = Rx<Duration>(const Duration(milliseconds: PHOTO_DURATION_MS)); //Initialize this to 5seconds
@@ -68,8 +71,6 @@ class PhotoStoryController extends StoryController {
   void _updateTimer(Timer timer) {
     elapsedTime.value += const Duration(milliseconds: 10);
     if (elapsedTime.value >= const Duration(milliseconds: PHOTO_DURATION_MS) && elapsedTime.value.inMilliseconds != 0 && !isCallbackSent.value) {
-      isCallbackSent.value = true;
-      timer.cancel(); //Timer is over
       stop();
     }
     update();
@@ -79,31 +80,45 @@ class PhotoStoryController extends StoryController {
   void start() {
     elapsedTime.value = Duration.zero;
     contentLength.value = Duration(milliseconds: PHOTO_DURATION_MS);
+    if(!isTimerActive) _timer = Timer.periodic(const Duration(milliseconds: 10), _updateTimer);
+    isTimerActive = true;
+    update();
+  }
+
+  @override
+  void reset() {
+    if(isTimerActive) _timer.cancel();
+    isTimerActive = false;
+    isInsertedToTree = false;
     isCallbackSent.value = false;
-    _timer = Timer.periodic(const Duration(milliseconds: 10), _updateTimer);
+    update();
   }
 
   @override
   void stop() {
-    isStopped = true;
+    if(isTimerActive) _timer.cancel();
+    isTimerActive = false;
+    isInsertedToTree = false;
+    isCallbackSent.value = true;
     // Callback function to change this story to the next one
+    print('calling back');
     onContentFinished();
     update();
   }
 
   @override
   void pause() {
-    print('paused');
-    print(elapsedTime.value.inMilliseconds);
-    print(contentUrl);
-    _timer.cancel();
+    if(isTimerActive) _timer.cancel();
+    isTimerActive = false;
     update();
   }
 
   @override
   void play() {
     print('played');
-    _timer = Timer.periodic(const Duration(milliseconds: 10), _updateTimer);
+    if(!isTimerActive) _timer = Timer.periodic(const Duration(milliseconds: 10), _updateTimer);
+    isTimerActive = true;
+    update();
   }
 
   @override
@@ -111,10 +126,11 @@ class PhotoStoryController extends StoryController {
     isInsertedToTree = false;
     //elapsedTime.close();
     //contentLength.close();
-    _timer.cancel();
+    if(isTimerActive) _timer.cancel();
     super.dispose();
   }
 
   static const int PHOTO_DURATION_MS = 5000;
+
 
 }
