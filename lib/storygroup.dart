@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:instagramstory2/appscreen.dart';
 import 'package:instagramstory2/photostory.dart';
 import 'package:instagramstory2/storycontent.dart';
 import 'package:instagramstory2/videostory.dart';
@@ -122,8 +123,6 @@ class StoryGroupController extends GetxController {
   List<StoryContent> storyContents = [];
   RxInt currentStoryIndex = 0.obs;
   String userName;
-  Rx<Offset> horizontalDragStart = Offset.zero.obs;
-  Rx<Offset> horizontalDrag = Offset.zero.obs;
   Function storyGroupFinished;
   String profilePictureUrl;
 
@@ -135,11 +134,9 @@ class StoryGroupController extends GetxController {
       String url = stories.elementAt(i);
       if(url.contains('.mp4') || url.contains('.mov') || url.contains('.mov') || url.contains('.wmv') || url.contains('.flv') || url.contains('.avi')) {
         storyContents.add(VideoStory(url, nextStory, userName + i.toString()));
-        print("videostory");
       }
       else if(url.contains('.jpeg') || url.contains('.jpg') || url.contains('.png') || url.contains('.svg') || url.contains('.gif') || url.contains('.webp')) {
         storyContents.add(PhotoStory(url, nextStory, userName + i.toString()));
-        print("photostory");
       }
       else {
         throw UnsupportedError('Media file type is not supported!');
@@ -149,18 +146,26 @@ class StoryGroupController extends GetxController {
   }
 
   nextStory() {
+    print("---------");
+    print('NEXTSTORY INDEXES');
+    print('LOG FROM:');
+    print(Get.find<AppScreenController>().currentStoryGroupIndex.value);
+    print(currentStoryIndex.value);
+    print(storyContents.length);
+    print("---------");
     if(currentStoryIndex.value < storyContents.length - 1) {
       //There are more stories to show
       storyContents[currentStoryIndex.value].getStoryController().reset();
       currentStoryIndex.value++;
-      storyContents[currentStoryIndex.value].getStoryController().play();
-      //print("hehehe");
-      print(currentStoryIndex.value);
+      //storyContents[currentStoryIndex.value].getStoryController().play();
+      //print(currentStoryIndex.value);
     }
     else {
       //No more stories here make callback
-      storyContents[currentStoryIndex.value].getStoryController().reset();
-      print('makin callback');
+      print('STORY GROUP FINISEHED');
+      print(currentStoryIndex.value);
+      print(storyContents.length);
+      //storyContents[currentStoryIndex.value].getStoryController().reset();
       storyGroupFinished();
     }
   }
@@ -169,6 +174,7 @@ class StoryGroupController extends GetxController {
     if(currentStoryIndex.value > 0) {
       storyContents[currentStoryIndex.value].getStoryController().reset();
       currentStoryIndex--;
+      update();
     }
     storyContents[currentStoryIndex.value].getStoryController().reset();
     storyContents[currentStoryIndex.value].getStoryController().play();

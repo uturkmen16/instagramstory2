@@ -18,8 +18,11 @@ class VideoStory extends StatelessWidget implements StoryContent{
   Widget build(BuildContext context) {
     //After the widget is inserted call play video
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      print('POSTFRAMECALLBACK');
+      videoStoryController.isInsertedToTree = true;
+      print('POSTFRAMECALLBACK2');
       videoStoryController.start();
-      if(Get.find<AppScreenController>().isPressedDown.value) videoStoryController.pause();
+      print('POSTFRAMECALLBACK3');
 
     });
     return
@@ -57,6 +60,7 @@ class VideoStoryController extends StoryController {
   Function onContentFinished;
   @override
   bool isStopped = false;
+  bool isInsertedToTree = false;
 
   Rx<Duration> elapsedTime = Rx<Duration>(Duration.zero);
   Rx<Duration> contentLength = Rx<Duration>(Duration.zero);
@@ -72,6 +76,7 @@ class VideoStoryController extends StoryController {
   void onInit() {
     print("ONINIT");
     print(contentUrl);
+    isInsertedToTree = false;
     videoPlayerController = Rx<VideoPlayerController>(VideoPlayerController.network(contentUrl));
     super.onInit();
   }
@@ -80,24 +85,35 @@ class VideoStoryController extends StoryController {
   void start() {
     isCallbackSent.value = false;
     videoPlayerController.value.addListener(videoListener);
+    print('Start1');
     videoPlayerController.value.initialize().then((_) {
       print(contentUrl);
       print("video init");
+      videoPlayerController.value.play();
       contentLength.value = videoPlayerController.value.value.duration;
       isInitialized.value = true;
-      update();
+      if(Get.find<AppScreenController>().isPressedDown.value) pause();
       if(contentLength.value.inMilliseconds <= 0) {
+        print('CANT OPEN VIDEO');
         stop();
       }
+      update();
     });
-    videoPlayerController.value.play();
+  }
+
+  @override
+  void reset() {
+    isCallbackSent.value = false;
+    isInsertedToTree = false;
   }
 
   @override
   void stop() {
+    print('VIDEO STOPPED');
     isStopped = true;
     videoPlayerController.value.pause();
     videoPlayerController.value.removeListener(videoListener);
+    isInsertedToTree = false;
     onContentFinished();
     update();
   }
@@ -124,10 +140,10 @@ class VideoStoryController extends StoryController {
 
   @override
   void dispose(){
+    bool isInsertedToTree = false;
     elapsedTime.close();
     contentLength.close();
     videoPlayerController.value.removeListener(videoListener);
-    videoPlayerController.value.dispose();
     super.dispose();
   }
 
@@ -137,10 +153,6 @@ class VideoStoryController extends StoryController {
   @override
   Rx<Duration> getContentLength() => contentLength;
 
-  @override
-  void reset() {
-    // TODO: implement reset
-  }
 
 
 }

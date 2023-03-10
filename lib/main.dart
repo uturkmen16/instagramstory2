@@ -24,8 +24,7 @@ class Home extends StatelessWidget {
       "https://i.ytimg.com/vi/CA73SVqNDSI/mqdefault.jpg",
     ];
     List<String> stories3 = [
-      "https://seyyahdefteri.com/wp-content/uploads/2018/12/G%C3%B6ksu-Park%C4%B1-Nerede-5.jpg",
-      "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+      "https://seyyahdefteri.com/wp-content/uploads/2018/12/G%C3%B6ksu-Park%C4%B1-Nerede-5.jpg"
     ];
     List<StoryGroup> storyGroups = [
       StoryGroup(stories: stories1, userName: 'UmutJohn',storyGroupFinished: storyGroupFinished, profilePictureUrl: "https://siberci.com/wp-content/uploads/2020/03/hacker-ve-programci-1024x576.png",),
@@ -38,6 +37,7 @@ class Home extends StatelessWidget {
   storyGroupFinished() {
     AppScreenController appScreenController = Get.find<AppScreenController>();
     if (appScreenController.currentStoryGroupIndex.value < appScreenController.storyGroups.length - 1) {
+      appScreenController.storyGroups[appScreenController.currentStoryGroupIndex.value].storyGroupController.resetCurrentStory();
       appScreenController.carouselSliderController.nextPage();
     }
 

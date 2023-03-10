@@ -24,11 +24,10 @@ class PhotoStory extends StatelessWidget implements StoryContent{
         photoStoryController.start();
         if(Get.find<AppScreenController>().isPressedDown.value) photoStoryController.pause();
         photoStoryController.update();
-        print("-----------------");
       }
     });
 
-    return Image.network(photoStoryController.contentUrl);
+    return Center(child: Image.network(photoStoryController.contentUrl));
   }
 
   @override
@@ -78,8 +77,10 @@ class PhotoStoryController extends StoryController {
 
   @override
   void start() {
+    if(contentUrl == "https://img.freepik.com/free-photo/wide-angle-shot-single-tree-growing-clouded-sky-during-sunset-surrounded-by-grass_181624-22807.jpg")
+      print(StackTrace.current);
     elapsedTime.value = Duration.zero;
-    contentLength.value = Duration(milliseconds: PHOTO_DURATION_MS);
+    contentLength.value = const Duration(milliseconds: PHOTO_DURATION_MS);
     if(!isTimerActive) _timer = Timer.periodic(const Duration(milliseconds: 10), _updateTimer);
     isTimerActive = true;
     update();
@@ -87,21 +88,24 @@ class PhotoStoryController extends StoryController {
 
   @override
   void reset() {
+    elapsedTime.value = Duration.zero;
     if(isTimerActive) _timer.cancel();
     isTimerActive = false;
-    isInsertedToTree = false;
+    //isInsertedToTree = false;
     isCallbackSent.value = false;
     update();
   }
 
   @override
   void stop() {
+    print('PHOTO STOP CALL FROM:');
+    print(contentUrl);
     if(isTimerActive) _timer.cancel();
     isTimerActive = false;
     isInsertedToTree = false;
     isCallbackSent.value = true;
     // Callback function to change this story to the next one
-    print('calling back');
+    //print('calling back');
     onContentFinished();
     update();
   }
@@ -115,7 +119,6 @@ class PhotoStoryController extends StoryController {
 
   @override
   void play() {
-    print('played');
     if(!isTimerActive) _timer = Timer.periodic(const Duration(milliseconds: 10), _updateTimer);
     isTimerActive = true;
     update();

@@ -21,9 +21,8 @@ class AppScreen extends StatelessWidget {
           slideTransform: const CubeTransform(),
           controller: appScreenController.carouselSliderController,
           children: appScreenController.storyGroups,
+          autoSliderTransitionTime: Duration(milliseconds: 750),
           onSlideChanged: (newIndex) {
-            print('newIndex');
-            print(newIndex);
             for (int i = 0; i  < appScreenController.storyGroups.length; i++) {
               if(i != newIndex || appScreenController.isPressedDown.value) {
                 //Reset other storygroups when change
@@ -46,8 +45,18 @@ class AppScreen extends StatelessWidget {
             appScreenController.isPressedDown.value = true;
           },
           onSlideEnd: () {
-            print('slideend');
+            print('ONSLIDEEND PLAYING:');
+            print(appScreenController.currentStoryGroupIndex);
+            print(appScreenController.storyGroups[appScreenController.currentStoryGroupIndex.value].storyGroupController.currentStoryIndex);
             appScreenController.storyGroups[appScreenController.currentStoryGroupIndex.value].storyGroupController.playCurrentStory();
+            for (int i = 0; i  < appScreenController.storyGroups.length; i++) {
+              { //Reset other storygroups when change
+                if(i != appScreenController.currentStoryGroupIndex.value){
+                  //appScreenController.storyGroups[i].storyGroupController.pauseCurrentStory();
+                  //appScreenController.storyGroups[i].storyGroupController.update();
+                }
+              }
+            }
             appScreenController.isPressedDown.value = false;
           },
         ),
@@ -60,7 +69,8 @@ class AppScreen extends StatelessWidget {
             }
             else if(appScreenController.currentStoryGroupIndex.value < appScreenController.storyGroups.length - 1){
               //Go to next story group
-              appScreenController.carouselSliderController.nextPage();
+              print('APPSCREEN:GOTONEXTPAGE');
+              appScreenController.storyGroups[appScreenController.currentStoryGroupIndex.value].storyGroupController.storyGroupFinished();
             }
           }
           else {
@@ -89,13 +99,16 @@ class AppScreenController extends GetxController {
   RxBool isPressedDown = false.obs;
 
   AppScreenController({required this.storyGroups});
-
+/*
   storyGroupFinished() {
     if(currentStoryGroupIndex.value < storyGroups.length - 1){
       //Go to next story group
+      //storyGroups[.currentStoryGroupIndex.value].storyGroupController.nextStory();
       carouselSliderController.nextPage();
     }
     //Everything is over
   }
+
+ */
 
 }
