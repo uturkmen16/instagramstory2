@@ -157,7 +157,7 @@ class StoryGroupController extends GetxController {
       //There are more stories to show
       storyContents[currentStoryIndex.value].getStoryController().reset();
       currentStoryIndex.value++;
-      //storyContents[currentStoryIndex.value].getStoryController().play();
+      storyContents[currentStoryIndex.value].getStoryController().play();
       //print(currentStoryIndex.value);
     }
     else {

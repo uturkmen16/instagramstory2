@@ -77,8 +77,6 @@ class PhotoStoryController extends StoryController {
 
   @override
   void start() {
-    if(contentUrl == "https://img.freepik.com/free-photo/wide-angle-shot-single-tree-growing-clouded-sky-during-sunset-surrounded-by-grass_181624-22807.jpg")
-      print(StackTrace.current);
     elapsedTime.value = Duration.zero;
     contentLength.value = const Duration(milliseconds: PHOTO_DURATION_MS);
     if(!isTimerActive) _timer = Timer.periodic(const Duration(milliseconds: 10), _updateTimer);
@@ -102,7 +100,7 @@ class PhotoStoryController extends StoryController {
     print(contentUrl);
     if(isTimerActive) _timer.cancel();
     isTimerActive = false;
-    isInsertedToTree = false;
+    //isInsertedToTree = false;
     isCallbackSent.value = true;
     // Callback function to change this story to the next one
     //print('calling back');

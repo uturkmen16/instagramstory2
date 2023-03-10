@@ -31,7 +31,15 @@ class Home extends StatelessWidget {
       StoryGroup(stories: stories2, userName: 'DORAEXPLORA',storyGroupFinished: storyGroupFinished ,profilePictureUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCumtO5MnRJWTtdw6-7RVWBi298qT4btvPTEcF0HMMx-OatsCFj2RtfVKxmTx1sGCgYmU&usqp=CAU",),
       StoryGroup(stories: stories3, userName: 'Goks',storyGroupFinished: storyGroupFinished, profilePictureUrl: "https://upload.wikimedia.org/wikipedia/commons/1/19/Ankara_by_night_2013.jpg",)
     ];
-    return AppScreen(storyGroups: storyGroups);
+    return Scaffold(
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(0),
+          child: AppBar(
+            backgroundColor: Colors.black,
+          ),
+        ),
+        body: AppScreen(storyGroups: storyGroups)
+    );
   }
 
   storyGroupFinished() {
